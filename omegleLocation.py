@@ -6,30 +6,39 @@ ips = []
 
 
 def mostra_ip(x):
-    global ips
+    global ips, ip
 
-    ip = x.payload.dst
+    try:
+        ip = x.payload.dst
 
-    if not ip in ips:
-        ips.append(ip)
+        if not ip in ips:
+            ips.append(ip)
 
-        if not '192.168' in ip:
+            if not '192.168' in ip:
 
-            try:
-                dados = requests.get(f'http://ip-api.com/json/{ip}')
-            except:
-                return 0
+                try:
+                    dados = requests.get(f'http://ip-api.com/json/{ip}')
+                except:
+                    return 0
 
-            if dados.status_code == 200:
-                resp = json.loads(dados.text)
+                if dados.status_code == 200:
+                    resp = json.loads(dados.text)
 
-                if resp["status"] == 'success':
-                    return f"ip: {ip} | city: {resp['city']} | estado: {resp['regionName']} | uf: {resp['region']} | pais: {resp['country']} | org: {resp['org']}"
+                    if resp["status"] == 'success':
+                        return f"ip: {ip} | city: {resp['city']} | estado: {resp['regionName']} | uf: {resp['region']} | pais: {resp['country']} | org: {resp['org']}"
+                    else:
+                        return f"ip: {ip} | Request error {resp['status']}"
+
                 else:
-                    return f"ip: {ip} | Request error {resp['status']}"
+                    return f"ip: {ip} | Erro {dados.status_code}"
+    except:
+        pass
 
-            else:
-                return f"ip: {ip} | Erro {dados.status_code}"
 
+ip = input('Seu IP [Enter for ALL]: ')
 
-a = scapy.sniff(iface='Wi-Fi', prn=mostra_ip, filter="udp")
+query = ''
+if ip:
+    query = f' src {ip}'
+
+a = scapy.sniff(iface='Wi-Fi', prn=mostra_ip, filter=f"udp{query}")
