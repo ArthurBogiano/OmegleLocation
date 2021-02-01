@@ -1,3 +1,4 @@
+from tabulate import tabulate
 import scapy.all as scapy
 import requests
 import json
@@ -22,20 +23,33 @@ def mostra_ip(x):
                     return 0
 
                 if dados.status_code == 200:
+
                     resp = json.loads(dados.text)
 
                     if resp["status"] == 'success':
-                        return f"ip: {ip} | city: {resp['city']} | estado: {resp['regionName']} | uf: {resp['region']} | pais: {resp['country']} | org: {resp['org']}"
+
+                        table = [
+                            ["Ip:", resp['query']],
+                            ["City:", resp['city']],
+                            ["State:", resp['regionName']],
+                            ["Region:", resp['region']],
+                            ["Country:", resp['country']],
+                            ["Postcode:", resp['zip']],
+                            ["Org:", resp['org']]
+                        ]
+                        print()
+                        print(tabulate(table))
+
                     else:
                         return f"ip: {ip} | Request error {resp['status']}"
 
                 else:
-                    return f"ip: {ip} | Erro {dados.status_code}"
+                    return f"ip: {ip} | Error {dados.status_code}"
     except:
         pass
 
 
-ip = input('Seu IP [Enter for ALL]: ')
+ip = input('Enter your IP [Press Enter for ALL]: ')
 
 query = ''
 if ip:
